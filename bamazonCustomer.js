@@ -1,6 +1,7 @@
 require("dotenv").config();
 var mysql = require("mysql");
 var inquirer = require("inquirer");
+var divider = "-----------------------------------------------"
 var connection = mysql.createConnection({  
   host: "localhost",
   port: 3306,
@@ -27,7 +28,7 @@ function placeOrder() {
   .prompt([
     {
       name: "id",
-      message: "Enter the ID number of the product you would like to buy: ",
+      message: "Enter the Item ID (NOT index) of the product you would like to buy: ",
       type: "input",
       validate: function(value) {
         return new Promise(function(resolve, reject) {
@@ -41,6 +42,8 @@ function placeOrder() {
           });
         }).then(function(value) {
           return value;
+        }).catch(function (err) {
+          console.log(err);
         });
       }
     },
@@ -65,7 +68,7 @@ function placeOrder() {
         connection.query("UPDATE products SET stock_quantity = ?  WHERE item_id = ?", [newQty, ans.id], function() {
           if (err) throw err;
           var totalPrice = res[0].price * ans.qty;
-          console.log("Your Total is $" + totalPrice + " for " + ans.qty + " " + res[0].product_name);
+          console.log(divider + "\n" + "Your Total is $" + totalPrice + " for " + ans.qty + " " + res[0].product_name + "\n" + divider);
           nextOrder();
         });
       } else {

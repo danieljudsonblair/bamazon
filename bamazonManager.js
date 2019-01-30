@@ -85,11 +85,66 @@ function viewProducts() {
 }
 
 function viewLowInv() {
-
+    connection.query("SELECT * FROM products WHERE stock_quantity < 5", function(err, res) {
+        if (err) throw err;
+        if (res.length !==0) {
+        console.table(res);
+        } else {
+        console.log("There are no products with stock quantities less than 5");
+        }
+        menuPrompt();
+});
 }
 
 function addToInv() {
-
+    inquirer
+    .prompt([
+      {
+        name: "id",
+        message: "Enter the Item ID (NOT index) of the product you would like to add inventory: ",
+        type: "input",
+        validate: function(value) {
+          return new Promise(function(resolve, reject) {
+            connection.query("SELECT COUNT(item_id) AS id FROM products WHERE item_id = ?", value, function(err,res) {
+              if (err) throw err;
+              if (res[0].id === 1) {
+                resolve(true);
+              } else {
+                resolve("Please enter a valid Item ID.");
+              }
+            });
+          }).then(function(value) {
+            return value;
+          }).catch(function (err) {
+            console.log(err);
+          });
+        }
+      },
+      {
+        name: "qty",
+        message: "Enter the number of units you would like to add to inventory: ",
+        type: "input",
+        validate: function(val) {
+          if (!isNaN(val)) {
+            return true;
+          } else {
+            return "Please enter a number.";
+          }
+        }
+      }
+    ]).then(function(ans) { 
+        connection.query("SELECT stock_quantity, product_name FROM products WHERE item_id = ?", ans.id, function(err, res) {
+            if (err) throw err;
+            var newQty = parseInt(res[0].stock_quantity) + parseInt(ans.qty);
+            connection.query("UPDATE products SET stock_quantity = ?  WHERE item_id = ?", [newQty, ans.id], function() {
+            if (err) throw err;
+            console.log("You just added " + ans.qty + " " + res[0].product_name + " to inventory");
+            menuPrompt();
+            })
+        });
+    }).catch(function (err) {
+       console.log(err);
+    });
 }
 
 function exit() {
