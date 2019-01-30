@@ -14,7 +14,7 @@ connection.connect(function(err) {
     displayProducts();
   });
 
-  function displayProducts() {
+function displayProducts() {
     connection.query("SELECT item_id, product_name, price FROM products",function(err,res) {
         if (err) throw err;
         console.table(res);
@@ -73,6 +73,8 @@ function placeOrder() {
         nextOrder();
       }
     });
+  }).catch(function (err) {
+    console.log(err);
   });
 }
 
@@ -90,6 +92,8 @@ function nextOrder () {
     } else {
       connection.end();
     }
+  }).catch(function (err) {
+    console.log(err);
   });
 }
 
