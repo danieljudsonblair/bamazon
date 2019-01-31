@@ -18,6 +18,7 @@ connection.connect(function(err) {
 function displayProducts() {
     connection.query("SELECT item_id, product_name, price FROM products",function(err,res) {
         if (err) throw err;
+        console.log(divider +"\n" + "Welcome to Bamazon!");
         console.table(res);
         placeOrder();
     })
